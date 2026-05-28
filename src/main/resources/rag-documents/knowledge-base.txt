@@ -1,0 +1,46 @@
+== COMPANY AI PLATFORM KNOWLEDGE BASE ==
+
+SECTION 1: APPROVED AI TOOLS
+Our company has approved the following AI tools for internal use:
+- InternalLLM v2.0: Our self-hosted large language model running on the AI Platform cluster.
+  Endpoint: http://ai-platform.internal/v1 | Auth: Bearer token from the IAM portal.
+- CodeAssist Pro: AI code completion tool approved for all engineering teams.
+- DataInsight AI: Approved for analytics and BI teams to query data using natural language.
+- Anything NOT on this list requires a security review before use.
+
+SECTION 2: DATA CLASSIFICATION RULES
+When using AI tools you MUST follow these data handling rules:
+- PUBLIC data (green): Can be sent to any approved AI tool without restrictions.
+- INTERNAL data (yellow): Can only be sent to InternalLLM. Never to external services.
+- CONFIDENTIAL data (red): Must NOT be sent to any AI tool without CISO approval.
+- Customer PII (names, emails, IDs) is always CONFIDENTIAL.
+
+SECTION 3: LLM MODEL SPECIFICATIONS
+InternalLLM v2.0 specifications:
+- Context window: 128,000 tokens
+- Supported languages: English, French, German, Spanish, Japanese, Chinese
+- Fine-tuned on: Company documentation, internal wikis, code repositories
+- Max output tokens: 4,096
+- Rate limits: 100 requests/minute per team, 1,000 requests/minute enterprise-wide
+
+SECTION 4: INCIDENT RESPONSE
+If you observe unexpected or harmful AI output:
+1. Stop using the tool immediately.
+2. Document the exact prompt and response.
+3. Report to ai-safety@company.internal within 24 hours.
+4. Do NOT share harmful outputs externally or on social media.
+SLA: All AI incidents are reviewed within 48 hours by the AI Safety team.
+
+SECTION 5: HOW TO REQUEST ACCESS
+To get access to the AI Platform:
+1. Submit an access request at https://iam.internal/request
+2. Your manager must approve the request.
+3. Complete the mandatory "Responsible AI Use" training (2 hours, on the LMS).
+4. Access is provisioned within 3 business days after approval + training.
+
+SECTION 6: BILLING AND COST
+AI Platform usage is billed to team cost centers:
+- Token-based pricing: $0.002 per 1K tokens (input + output).
+- Monthly budget alerts are sent at 80% and 100% of the team's allocated budget.
+- Budget increases require approval from your VP.
+- Cost dashboards are available at https://ai-costs.internal

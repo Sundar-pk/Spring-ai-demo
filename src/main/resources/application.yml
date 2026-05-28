@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: spring-ai-demo
+
+  ai:
+    openai:
+      # Point this at your internal company LLM server
+      # Most enterprise LLMs expose an OpenAI-compatible /v1 API
+      # e.g. vLLM, text-generation-inference, Azure OpenAI, Ollama
+      base-url: ${INTERNAL_LLM_URL:http://your-internal-llm-host/v1}
+      api-key: ${INTERNAL_LLM_API_KEY:your-api-key-here}
+
+      chat:
+        options:
+          # Set this to whatever model name your internal server uses
+          model: ${INTERNAL_LLM_MODEL:gpt-3.5-turbo}
+          temperature: 0.7
+          max-tokens: 1024
+
+      embedding:
+        options:
+          # Embedding model for RAG - can be the same server or different
+          model: ${INTERNAL_EMBEDDING_MODEL:text-embedding-ada-002}
+
+# Swagger UI available at http://localhost:8080/swagger-ui.html
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+  api-docs:
+    path: /api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.ai: DEBUG   # See all LLM requests/responses in logs
+    com.example.springaidemo: INFO
