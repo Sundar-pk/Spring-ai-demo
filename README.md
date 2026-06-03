@@ -25,7 +25,7 @@
 
 ## What This Project Does
 
-This application is an **AI-powered CI/CD monitor** built with **Spring AI** — Anthropic's and the Java ecosystem's answer to Python frameworks like LangChain and LangGraph.
+This application is an **AI-powered CI/CD monitor** built with **Spring AI** — 
 
 Every **5 minutes** the application:
 
