@@ -1,0 +1,83 @@
+# =============================================================================
+# Jenkins AI Monitor - Configuration
+# All sensitive values should be overridden via environment variables in prod.
+# Python equivalent: os.environ / .env file loaded by python-dotenv
+# =============================================================================
+
+spring:
+  application:
+    name: jenkins-ai-monitor
+
+  # ---------------------------------------------------------------------------
+  # Spring AI - OpenAI-compatible LLM connection
+  # Spring AI uses this to build the HTTP client that calls your LLM proxy.
+  # ---------------------------------------------------------------------------
+  ai:
+    openai:
+      # Your proxy URL. Example: http://proxy.bank.internal:8080/v1
+      # Override with env var: SPRING_AI_OPENAI_BASE_URL=http://your-proxy/v1
+      base-url: ${SPRING_AI_OPENAI_BASE_URL:http://localhost:11434/v1}
+
+      # Your LLM API key (set via env var in production)
+      api-key: ${SPRING_AI_OPENAI_API_KEY:your-api-key-here}
+
+      chat:
+        options:
+          # Model name your team has deployed
+          model: ${LLM_MODEL_NAME:gpt-4o}
+          temperature: 0.2          # Low temp = focused, deterministic fixes
+          max-tokens: 4096           # Allow detailed fix explanations
+
+# ---------------------------------------------------------------------------
+# Jenkins Connection Settings
+# ---------------------------------------------------------------------------
+jenkins:
+  # Base URL of your Jenkins server
+  base-url: ${JENKINS_BASE_URL:http://localhost:8080}
+
+  # Jenkins job name to monitor (supports folder paths: folder/job-name)
+  job-name: ${JENKINS_JOB_NAME:my-pipeline-job}
+
+  # Jenkins credentials (use API token, not password)
+  username: ${JENKINS_USERNAME:admin}
+  api-token: ${JENKINS_API_TOKEN:your-jenkins-api-token}
+
+  # How many log lines to send to LLM (keep under your model's context window)
+  log-max-lines: ${JENKINS_LOG_MAX_LINES:200}
+
+# ---------------------------------------------------------------------------
+# Scheduler Settings
+# ---------------------------------------------------------------------------
+monitor:
+  # How often to poll Jenkins (in milliseconds). Default: 5 minutes
+  poll-interval-ms: ${MONITOR_POLL_INTERVAL_MS:300000}
+
+  # Where to save fix reports (relative to working directory)
+  output-dir: ${MONITOR_OUTPUT_DIR:./fix-reports}
+
+  # Set to true to enable auto-fix via Git (future feature)
+  auto-fix-enabled: ${MONITOR_AUTO_FIX_ENABLED:false}
+
+# ---------------------------------------------------------------------------
+# HTTP Proxy for LLM
+# If your hosted LLM is only reachable through a corporate HTTP proxy,
+# set these values. AppConfig reads them and wires them into the JVM proxy.
+#
+# Note: This sets JVM-level system properties (http.proxyHost etc.) which
+# affects ALL outbound HTTP from this app — including Spring AI's LLM calls.
+# ---------------------------------------------------------------------------
+llm:
+  proxy:
+    # Set to true to activate corporate proxy routing for LLM calls
+    enabled: ${LLM_PROXY_ENABLED:false}
+    host: ${LLM_PROXY_HOST:proxy.bank.internal}
+    port: ${LLM_PROXY_PORT:8080}
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level:
+    com.bank.demo: DEBUG
+    org.springframework.ai: INFO
+    root: INFO
