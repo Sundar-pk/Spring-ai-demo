@@ -52,9 +52,12 @@ public class AiConfig {
      * Production alternatives: PgVector, Chroma, Pinecone, Weaviate, Redis
      *
      * Python equivalent: Chroma / FAISS in-memory from LangChain
+     *
+     * NOTE: SimpleVectorStore.builder() static factory was added after M6.
+     * In 1.0.0-M6 use the constructor directly.
      */
     @Bean
     public SimpleVectorStore vectorStore(EmbeddingModel embeddingModel) {
-        return SimpleVectorStore.builder(embeddingModel).build();
+        return new SimpleVectorStore(embeddingModel);
     }
 }

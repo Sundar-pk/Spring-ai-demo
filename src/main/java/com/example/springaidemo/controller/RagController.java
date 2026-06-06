@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -100,11 +99,15 @@ public class RagController {
     )
     public ApiResponse<Map<String, Object>> askKnowledgeBase(@RequestBody ChatRequest request) {
 
-        // QuestionAnswerAdvisor is the key — it's the RAG advisor
-        // SearchRequest.defaults() retrieves top-4 most similar chunks
+        // QuestionAnswerAdvisor is the key — it's the RAG advisor.
+        // It auto-embeds the user query, searches the vector store, and
+        // injects the top matching chunks into the system prompt context.
+        //
+        // NOTE: In 1.0.0-M6, use SearchRequest.defaults() without chaining withTopK()
+        // on the same line — the topK is set separately or left at the default (4).
         var ragAdvisor = new QuestionAnswerAdvisor(
                 vectorStore,
-                SearchRequest.defaults().withTopK(3)
+                SearchRequest.defaults()
         );
 
         String answer = chatClient.prompt()
@@ -142,6 +145,8 @@ public class RagController {
     )
     public ApiResponse<List<Map<String, String>>> similaritySearch(@RequestParam String query) {
 
+        // In 1.0.0-M6: SearchRequest.query(text) sets the query string used for embedding.
+        // withTopK(3) is available but keep it separate from the factory call if needed.
         List<Map<String, String>> results = vectorStore
                 .similaritySearch(SearchRequest.query(query).withTopK(3))
                 .stream()

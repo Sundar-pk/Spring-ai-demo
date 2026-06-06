@@ -7,7 +7,11 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
+        <!--
+            Spring AI 1.0.0-M6 was built and tested against Spring Boot 3.2.x.
+            Using 3.3.0 here causes auto-configuration mismatches — keep at 3.2.5.
+        -->
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
@@ -19,7 +23,12 @@
 
     <properties>
         <java.version>17</java.version>
-        <spring-ai.version>1.0.0</spring-ai.version>
+        <!--
+            1.0.0-M6 is a milestone release — only available from repo.spring.io/milestone,
+            NOT from Maven Central. Ensure that repo is accessible on your network or
+            mirrored in your internal Nexus/Artifactory.
+        -->
+        <spring-ai.version>1.0.0-M6</spring-ai.version>
     </properties>
 
     <!-- Spring AI Bill of Materials - manages all spring-ai dependency versions -->
@@ -89,18 +98,13 @@
     </build>
 
     <!--
-        Repository config.
-        spring-ai 1.0.0 GA is in Maven Central, so this milestones repo is
-        only needed if you switch to a milestone/RC version (e.g. 1.1.0-M1).
-        If your company uses a Nexus/Artifactory mirror, add its URL here instead
-        and make sure spring-ai artifacts are proxied through it.
+        IMPORTANT for 1.0.0-M6:
+        Milestone releases are NOT published to Maven Central — they live only on
+        repo.spring.io/milestone. If your company Nexus/Artifactory is the only
+        allowed outbound repo, ask your IT team to proxy this URL so the artifacts
+        resolve. Without this repository block Maven will say "artifact not found".
     -->
     <repositories>
-        <repository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
@@ -108,4 +112,13 @@
             <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

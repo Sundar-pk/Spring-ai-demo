@@ -140,12 +140,14 @@ public class ChatController {
         // MessageChatMemoryAdvisor intercepts each call:
         //   Before: retrieves history for this conversationId and prepends it
         //   After:  saves the new exchange back to memory
+        //
+        // NOTE: MessageChatMemoryAdvisor.builder() was added after M6.
+        // In 1.0.0-M6 use the constructor: (chatMemory, conversationId, windowSize)
+        // windowSize=10 means it keeps the last 10 message pairs in context.
         String response = chatClient.prompt()
                 .user(request.message())
                 .advisors(
-                    MessageChatMemoryAdvisor.builder(chatMemory)
-                        .conversationId(request.conversationId())   // session isolation
-                        .build()
+                    new MessageChatMemoryAdvisor(chatMemory, request.conversationId(), 10)
                 )
                 .call()
                 .content();

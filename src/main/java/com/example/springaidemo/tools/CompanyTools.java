@@ -94,25 +94,27 @@ public class CompanyTools {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Tool input/output records — these define the JSON schema the LLM sees
+    // Tool input/output records — these define the JSON schema the LLM sees.
+    //
+    // NOTE: @Description from org.springframework.context.annotation.Description
+    // is @Target(ElementType.TYPE) — it cannot be placed on record fields/parameters.
+    // Applying it to fields causes a compile error in all Spring AI versions.
+    // Use descriptive field names instead; Spring AI generates the JSON schema
+    // from field names automatically.
     // ─────────────────────────────────────────────────────────────────────────
 
     public record CurrentTimeRequest(String timezone) {}
     public record CurrentTimeResponse(String currentDateTime) {}
 
-    public record EmployeeRequest(
-            @Description("Employee ID (e.g. EMP001) or partial name to search for")
-            String query
-    ) {}
+    // Field name "query" tells the LLM to pass an employee ID or name here
+    public record EmployeeRequest(String query) {}
 
     public record EmployeeResponse(
             String employeeId, String name, String department, String role, String manager
     ) {}
 
-    public record ProjectRequest(
-            @Description("Project code (e.g. AI-PLATFORM) or partial project name")
-            String projectName
-    ) {}
+    // Field name "projectName" tells the LLM to pass a project code or name here
+    public record ProjectRequest(String projectName) {}
 
     public record ProjectResponse(
             String code, String fullName, String status,
