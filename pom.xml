@@ -47,10 +47,16 @@
             Works with ANY OpenAI-compatible HTTP endpoint - including internal company LLMs
             (vLLM, Ollama, Azure OpenAI, text-generation-inference, etc.)
             Just point base-url at your internal server.
+
+            Version is set explicitly here as a fallback in case the spring-ai-bom POM
+            cannot be downloaded from repo.spring.io (e.g. corporate firewall/proxy).
+            The BOM in <dependencyManagement> above is kept for any extra Spring AI deps
+            you add later.
         -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>${spring-ai.version}</version>
         </dependency>
 
         <!-- Swagger UI - makes it easy to demo all endpoints interactively -->
@@ -82,8 +88,19 @@
         </plugins>
     </build>
 
-    <!-- Spring milestones repo - needed if using milestone/RC versions of Spring AI -->
+    <!--
+        Repository config.
+        spring-ai 1.0.0 GA is in Maven Central, so this milestones repo is
+        only needed if you switch to a milestone/RC version (e.g. 1.1.0-M1).
+        If your company uses a Nexus/Artifactory mirror, add its URL here instead
+        and make sure spring-ai artifacts are proxied through it.
+    -->
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
