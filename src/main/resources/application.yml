@@ -4,10 +4,13 @@ spring:
 
   ai:
     openai:
-      # Point this at your internal company LLM server
-      # Most enterprise LLMs expose an OpenAI-compatible /v1 API
-      # e.g. vLLM, text-generation-inference, Azure OpenAI, Ollama
-      base-url: ${INTERNAL_LLM_URL:http://your-internal-llm-host/v1}
+      # Point this at your internal company LLM server (host only — no /v1 suffix).
+      # Spring AI M6 appends /v1/chat/completions and /v1/embeddings automatically.
+      # If you include /v1 here it becomes /v1/v1/... and all calls will 404.
+      #
+      # Set env var:  INTERNAL_LLM_URL=http://ai-platform.internal
+      # NOT:          INTERNAL_LLM_URL=http://ai-platform.internal/v1   ← wrong
+      base-url: ${INTERNAL_LLM_URL:http://your-internal-llm-host}
       api-key: ${INTERNAL_LLM_API_KEY:your-api-key-here}
 
       chat:
