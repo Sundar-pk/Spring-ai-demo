@@ -1,0 +1,6 @@
+.env
+*.class
+target/
+fix-reports/
+.idea/
+*.iml
