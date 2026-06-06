@@ -103,11 +103,11 @@ public class RagController {
         // It auto-embeds the user query, searches the vector store, and
         // injects the top matching chunks into the system prompt context.
         //
-        // NOTE: In 1.0.0-M6, use SearchRequest.defaults() without chaining withTopK()
-        // on the same line — the topK is set separately or left at the default (4).
+        // M6 SearchRequest API: SearchRequest.defaults() and .query() static
+        // factories do NOT exist. Use the builder: SearchRequest.builder().topK(3).build()
         var ragAdvisor = new QuestionAnswerAdvisor(
                 vectorStore,
-                SearchRequest.defaults()
+                SearchRequest.builder().topK(3).build()
         );
 
         String answer = chatClient.prompt()
@@ -145,15 +145,16 @@ public class RagController {
     )
     public ApiResponse<List<Map<String, String>>> similaritySearch(@RequestParam String query) {
 
-        // In 1.0.0-M6: SearchRequest.query(text) sets the query string used for embedding.
-        // withTopK(3) is available but keep it separate from the factory call if needed.
+        // M6 SearchRequest builder API: no static factories — use builder chain.
+        // M6 Document API: getContent() was renamed to getText() in M6.
         List<Map<String, String>> results = vectorStore
-                .similaritySearch(SearchRequest.query(query).withTopK(3))
+                .similaritySearch(SearchRequest.builder().query(query).topK(3).build())
                 .stream()
-                .map(doc -> Map.of(
-                        "content",  doc.getContent().substring(0, Math.min(200, doc.getContent().length())) + "...",
-                        "metadata", doc.getMetadata().toString()
-                ))
+                .map(doc -> {
+                    String text = doc.getText() != null ? doc.getText() : "";
+                    String preview = text.substring(0, Math.min(200, text.length())) + "...";
+                    return (Map<String, String>) Map.of("content", preview, "metadata", doc.getMetadata().toString());
+                })
                 .toList();
 
         return ApiResponse.of(

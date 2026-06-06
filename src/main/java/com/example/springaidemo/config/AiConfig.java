@@ -58,6 +58,8 @@ public class AiConfig {
      */
     @Bean
     public SimpleVectorStore vectorStore(EmbeddingModel embeddingModel) {
-        return new SimpleVectorStore(embeddingModel);
+        // In M6 the constructor is protected — must use the static builder.
+        // SimpleVectorStore.builder(EmbeddingModel) exists in both M6 and GA.
+        return SimpleVectorStore.builder(embeddingModel).build();
     }
 }

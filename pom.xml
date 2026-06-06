@@ -86,6 +86,25 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--
+            Lombok — compile-time code generator.
+            Eliminates boilerplate: @Data generates getters/setters/equals/hashCode,
+            @Slf4j injects a 'log' field, @RequiredArgsConstructor generates the
+            constructor Spring uses for dependency injection.
+
+            <optional>true</optional> means it's NOT included in the final JAR —
+            it's only needed during compilation (annotation processing step).
+
+            WITHOUT this dependency every Lombok annotation (@Data, @Slf4j, etc.)
+            is an unknown symbol and every generated method (getNumber(), getResult()...)
+            is "cannot find symbol" — which is exactly what caused all the errors.
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,6 +112,39 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Two @SpringBootApplication classes exist in this module.
+                         Specify one so the plugin doesn't fail with "multiple candidates". -->
+                    <mainClass>com.example.springaidemo.SpringAiDemoApplication</mainClass>
+                    <!-- Exclude Lombok from the packaged JAR — it's compile-time only -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!--
+                Explicitly register Lombok as an annotation processor.
+                With Maven 3.9 + maven-compiler-plugin 3.11, adding Lombok to
+                annotationProcessorPaths ensures it runs BEFORE javac so that
+                @Data/@Slf4j/@RequiredArgsConstructor generate their code first.
+                Without this, the compiler sees the annotations but no generated code.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>
