@@ -10,6 +10,7 @@ import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,12 @@ import java.util.Map;
  * runs a similarity search automatically, and stuffs the results into the prompt.
  * You don't manually build the RAG prompt — it's handled for you.
  */
+@ConditionalOnProperty(
+        prefix = "spring.ai.openai.embedding",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true   // enabled by default; skipped when embedding.enabled=false
+)
 @RestController
 @RequestMapping("/api/rag")
 @Tag(name = "3. RAG (Retrieval Augmented Generation)",

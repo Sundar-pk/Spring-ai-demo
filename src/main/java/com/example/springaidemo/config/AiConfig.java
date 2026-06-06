@@ -5,6 +5,7 @@ import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -56,10 +57,20 @@ public class AiConfig {
      * NOTE: SimpleVectorStore.builder() static factory was added after M6.
      * In 1.0.0-M6 use the constructor directly.
      */
+    /**
+     * Only created when embedding is enabled (default: true).
+     * Set spring.ai.openai.embedding.enabled=false to skip this bean —
+     * useful when your internal LLM has no embeddings endpoint.
+     * RagController is also conditional on the same property.
+     */
     @Bean
+    @ConditionalOnProperty(
+            prefix = "spring.ai.openai.embedding",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true   // treat "not set" as enabled
+    )
     public SimpleVectorStore vectorStore(EmbeddingModel embeddingModel) {
-        // In M6 the constructor is protected — must use the static builder.
-        // SimpleVectorStore.builder(EmbeddingModel) exists in both M6 and GA.
         return SimpleVectorStore.builder(embeddingModel).build();
     }
 }
