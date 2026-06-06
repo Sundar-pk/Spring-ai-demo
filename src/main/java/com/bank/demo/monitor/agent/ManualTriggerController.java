@@ -2,6 +2,7 @@ package com.bank.demo.monitor.agent;
 
 import com.bank.demo.monitor.jenkins.JenkinsClient;
 import com.bank.demo.monitor.model.BuildAnalysisResult;
+import com.bank.demo.monitor.model.BuildInfo;
 import com.bank.demo.monitor.service.FixReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,11 +64,9 @@ public class ManualTriggerController {
             @RequestBody(required = false) Map<String, Integer> body) {
 
         if (body != null && body.containsKey("buildNumber")) {
-            // User specified a build number — construct a minimal BuildInfo
             int requestedBuild = body.get("buildNumber");
             log.info("Manual analysis triggered for build #{}", requestedBuild);
 
-            // Fetch log directly (no BuildInfo needed for manual trigger)
             String consoleLog = jenkinsClient.getConsoleLog(requestedBuild);
             BuildAnalysisResult result = buildAnalysisAgent.analyse(requestedBuild, consoleLog);
             fixReportService.publishReport(result);

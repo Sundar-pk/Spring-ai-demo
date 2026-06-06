@@ -1,7 +1,8 @@
 package com.bank.demo.monitor.model;
 
-import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents a Jenkins build — mapped from Jenkins REST API JSON response.
@@ -10,8 +11,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *
  * @JsonIgnoreProperties(ignoreUnknown = true) — Jenkins returns many fields;
  * we only capture what we need and ignore the rest.
+ *
+ * @NoArgsConstructor — required by Jackson for deserialization (no-arg constructor
+ * is needed when Jackson maps JSON → Java object).
  */
 @Data
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildInfo {
 
@@ -35,6 +40,9 @@ public class BuildInfo {
 
     /** Display name, e.g. "#42" */
     private String displayName;
+
+    /** Description set on the build (may be null) */
+    private String description;
 
     /** Convenience method — Python equivalent: @property */
     public boolean isFailed() {
