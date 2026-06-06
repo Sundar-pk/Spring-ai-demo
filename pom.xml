@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <!--
+            Spring AI 1.0.0-M6 was built and tested against Spring Boot 3.2.x.
+            Using 3.3.0 here causes auto-configuration mismatches — keep at 3.2.5.
+        -->
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
-    <groupId>com.bank.demo</groupId>
-    <artifactId>jenkins-ai-monitor</artifactId>
+    <groupId>com.example</groupId>
+    <artifactId>spring-ai-demo</artifactId>
     <version>1.0.0</version>
-    <name>Jenkins AI Monitor</name>
-    <description>Spring AI demo: Watch Jenkins, analyse failures with LLM, suggest fixes</description>
+    <name>spring-ai-demo</name>
+    <description>Spring AI Demo - Internal LLM Integration</description>
 
     <properties>
         <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <spring-ai.version>1.0.0</spring-ai.version>
+        <!--
+            1.0.0-M6 is a milestone release — only available from repo.spring.io/milestone,
+            NOT from Maven Central. Ensure that repo is accessible on your network or
+            mirrored in your internal Nexus/Artifactory.
+        -->
+        <spring-ai.version>1.0.0-M6</spring-ai.version>
     </properties>
 
-    <!-- Enforce Maven 3.x minimum -->
-    <prerequisites>
-        <maven>3.6.3</maven>
-    </prerequisites>
-
+    <!-- Spring AI Bill of Materials - manages all spring-ai dependency versions -->
     <dependencyManagement>
         <dependencies>
-            <!-- Spring AI BOM — manages all spring-ai-* versions -->
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
@@ -44,33 +45,40 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Boot Web (REST client, scheduling) -->
+        <!-- Spring Web - REST endpoints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <!--
-            Spring AI - OpenAI starter.
-            Your hosted LLM is OpenAI-API-compatible so this works perfectly.
-            Spring AI talks to it via HTTP; we just point the base-url to your proxy.
+            Spring AI OpenAI Starter.
+            Works with ANY OpenAI-compatible HTTP endpoint - including internal company LLMs
+            (vLLM, Ollama, Azure OpenAI, text-generation-inference, etc.)
+            Just point base-url at your internal server.
+
+            Version is set explicitly here as a fallback in case the spring-ai-bom POM
+            cannot be downloaded from repo.spring.io (e.g. corporate firewall/proxy).
+            The BOM in <dependencyManagement> above is kept for any extra Spring AI deps
+            you add later.
         -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>${spring-ai.version}</version>
         </dependency>
 
-        <!-- Lombok - removes boilerplate getters/setters (like Python dataclasses) -->
+        <!-- Swagger UI - makes it easy to demo all endpoints interactively -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
         </dependency>
 
-        <!-- Jackson - JSON serialization (built into Spring Boot) -->
+        <!-- Health checks and metrics -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <dependency>
@@ -85,49 +93,32 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-
-            <!-- Enforcer: fails the build if wrong Java or Maven version is used -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-versions</id>
-                        <goals><goal>enforce</goal></goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>[17,18)</version>
-                                    <message>This project requires Java 17. Please set JAVA_HOME to a JDK 17 installation.</message>
-                                </requireJavaVersion>
-                                <requireMavenVersion>
-                                    <version>[3.6.3,)</version>
-                                    <message>This project requires Maven 3.6.3 or higher.</message>
-                                </requireMavenVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
+    <!--
+        IMPORTANT for 1.0.0-M6:
+        Milestone releases are NOT published to Maven Central — they live only on
+        repo.spring.io/milestone. If your company Nexus/Artifactory is the only
+        allowed outbound repo, ask your IT team to proxy this URL so the artifacts
+        resolve. Without this repository block Maven will say "artifact not found".
+    -->
     <repositories>
-        <!-- Spring AI milestone/snapshot repo -->
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>https://repo.spring.io/milestone</url>
+            <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
